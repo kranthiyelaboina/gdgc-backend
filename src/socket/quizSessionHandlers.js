@@ -735,10 +735,13 @@ async function handleQuestionEnd(quizNsp, sessionCode) {
             if (participant.socketId) {
                 try {
                     const wasCorrect = question.correct_answers?.includes(participant.currentAnswer) || false;
+                    const lastResult = participant.lastAnswerResult || {};
                     quizNsp.to(participant.socketId).emit('question:personal-result', {
                         wasCorrect,
                         yourAnswer: participant.currentAnswer,
-                        pointsEarned: participant.hasAnsweredCurrent ? (wasCorrect ? session.basePointsPerQuestion : 0) : 0,
+                        pointsEarned: lastResult.pointsAwarded || 0,
+                        basePoints: lastResult.basePoints || 0,
+                        speedBonus: lastResult.speedBonus || 0,
                         yourScore: participant.score || 0,
                         yourRank: leaderboard.findIndex(l => l.oderId === participant.oderId) + 1 || participants.length
                     });

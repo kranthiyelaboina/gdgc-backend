@@ -193,8 +193,17 @@ export const recordAnswer = (sessionCode, oderId, answerData) => {
     participant.score += pointsAwarded;
     participant.totalAnswered++;
     if (isCorrect) participant.correctAnswers++;
+    
+    // Store last answer result for personal-result emission
+    participant.lastAnswerResult = {
+        isCorrect,
+        pointsAwarded,
+        basePoints: isCorrect ? session.basePointsPerQuestion : 0,
+        speedBonus,
+        responseTimeMs
+    };
 
-    console.log(`✏️ Answer from ${participant.userName}: ${isCorrect ? '✅ Correct' : '❌ Wrong'} (+${pointsAwarded} pts) in ${responseTimeMs}ms`);
+    console.log(`✏️ Answer from ${participant.userName}: ${isCorrect ? '✅ Correct' : '❌ Wrong'} (+${pointsAwarded} pts, bonus: +${speedBonus}) in ${responseTimeMs}ms`);
 
     return {
         success: true,
