@@ -1,0 +1,118 @@
+{
+  "quiz_id": "QUIZ_2024_001",
+  "title": "JavaScript Fundamentals",
+  "description": "Test your knowledge of JavaScript basics including variables, functions, and ES6 features.",
+  "category": "Programming",
+  "difficulty": "intermediate",
+  "tags": ["javascript", "programming", "web-development"],
+  "time_limit_sec": 1800,
+  "total_marks": 20,
+  "code": "JS2024",
+  "isActive": true,
+  "questions": [
+    {
+      "question_id": "Q1",
+      "type": "single_choice",
+      "question_text": "What is the correct way to declare a variable in JavaScript ES6?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "var x = 10;"
+        },
+        {
+          "option_id": "B",
+          "text": "let x = 10;"
+        },
+        {
+          "option_id": "C",
+          "text": "const x = 10;"
+        },
+        {
+          "option_id": "D",
+          "text": "Both B and C are correct"
+        }
+      ],
+      "correct_answers": ["D"],
+      "marks": 5,
+      "explanation": "In ES6, both 'let' and 'const' are proper ways to declare variables, with 'let' for mutable variables and 'const' for immutable ones."
+    },
+    {
+      "question_id": "Q2",
+      "type": "multiple_choice",
+      "question_text": "Which of the following are valid JavaScript data types?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "String"
+        },
+        {
+          "option_id": "B",
+          "text": "Number"
+        },
+        {
+          "option_id": "C",
+          "text": "Boolean"
+        },
+        {
+          "option_id": "D",
+          "text": "Character"
+        }
+      ],
+      "correct_answers": ["A", "B", "C"],
+      "marks": 5,
+      "explanation": "JavaScript has String, Number, and Boolean as primitive data types. There is no separate Character type - characters are just strings of length 1."
+    },
+    {
+      "question_id": "Q3",
+      "type": "single_choice",
+      "question_text": "What does 'this' keyword refer to in JavaScript?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "The current function"
+        },
+        {
+          "option_id": "B",
+          "text": "The global object"
+        },
+        {
+          "option_id": "C",
+          "text": "The object that owns the method being called"
+        },
+        {
+          "option_id": "D",
+          "text": "The previous object"
+        }
+      ],
+      "correct_answers": ["C"],
+      "marks": 5,
+      "explanation": "The 'this' keyword refers to the object that owns the method being called, though its value can change based on how the function is called."
+    },
+    {
+      "question_id": "Q4",
+      "type": "single_choice",
+      "question_text": "Which method is used to add an element to the end of an array?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "push()"
+        },
+        {
+          "option_id": "B",
+          "text": "pop()"
+        },
+        {
+          "option_id": "C",
+          "text": "shift()"
+        },
+        {
+          "option_id": "D",
+          "text": "unshift()"
+        }
+      ],
+      "correct_answers": ["A"],
+      "marks": 5,
+      "explanation": "The push() method adds one or more elements to the end of an array and returns the new length of the array."
+    }
+  ]
+}

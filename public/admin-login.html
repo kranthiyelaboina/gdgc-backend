@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDGC Platform - Admin Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+        }
+
+        .toggle-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .toggle-form a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #363;
+            border: 1px solid #cfc;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .admin-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            margin-top: 1rem;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🎯 GDGC Platform</h1>
+            <p>Admin Portal</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <!-- Registration Form (Hidden by default) -->
+        <form id="registerForm" class="hidden">
+            <div class="form-group">
+                <label for="regUsername">Username</label>
+                <input type="text" id="regUsername" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="regPassword">Password</label>
+                <input type="password" id="regPassword" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="regSecretKey">Admin Secret Key</label>
+                <input type="password" id="regSecretKey" required>
+            </div>
+            
+            <button type="submit" class="btn">Register Admin</button>
+        </form>
+
+        <!-- Admin Dashboard (Hidden by default) -->
+        <div id="adminDashboard" class="hidden">
+            <h3>Welcome, <span id="adminUsername"></span>!</h3>
+            <div class="admin-info">
+                <p><strong>Email:</strong> <span id="adminEmail"></span></p>
+                <p><strong>Role:</strong> <span id="adminRole"></span></p>
+                <p><strong>Login Time:</strong> <span id="loginTime"></span></p>
+            </div>
+            <button id="logoutBtn" class="btn logout-btn">Logout</button>
+        </div>
+
+        <!-- Toggle Forms -->
+        <div class="toggle-form">
+            <span id="toggleToRegister">
+                Need to create an admin account? <a href="#" id="showRegister">Register here</a>
+            </span>
+            <span id="toggleToLogin" class="hidden">
+                Already have an account? <a href="#" id="showLogin">Login here</a>
+            </span>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const alertContainer = document.getElementById('alertContainer');
+        const showRegisterLink = document.getElementById('showRegister');
+        const showLoginLink = document.getElementById('showLogin');
+        const toggleToRegister = document.getElementById('toggleToRegister');
+        const toggleToLogin = document.getElementById('toggleToLogin');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Show alert function
+        function showAlert(message, type = 'error') {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Toggle forms
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            toggleToRegister.classList.add('hidden');
+            toggleToLogin.classList.remove('hidden');
+        });
+
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            toggleToLogin.classList.add('hidden');
+            toggleToRegister.classList.remove('hidden');
+        });
+
+        // Login form handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Login successful!', 'success');
+                    
+                    // Store token in localStorage
+                    localStorage.setItem('adminToken', data.token);
+                    
+                    // Show admin dashboard
+                    showAdminDashboard(data.admin);
+                } else {
+                    showAlert(data.error || 'Login failed');
+                }
+            } catch (error) {
+                showAlert('Network error. Please try again.');
+                console.error('Login error:', error);
+            }
+        });
+
+        // Register form handler
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const secretKey = document.getElementById('regSecretKey').value;
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password, secretKey })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Admin registered successfully! You can now login.', 'success');
+                    registerForm.reset();
+                    
+                    // Switch to login form
+                    setTimeout(() => {
+                        showLoginLink.click();
+                    }, 2000);
+                } else {
+                    if (data.errors) {
+                        // Handle validation errors
+                        const errorMessages = data.errors.map(err => err.msg).join(', ');
+                        showAlert(errorMessages);
+                    } else {
+                        showAlert(data.error || 'Registration failed');
+                    }
+                }
+            } catch (error) {
+                showAlert('Network error. Please try again.');
+                console.error('Registration error:', error);
+            }
+        });
+
+        // Show admin dashboard
+        function showAdminDashboard(admin) {
+            loginForm.classList.add('hidden');
+            registerForm.classList.add('hidden');
+            toggleToRegister.classList.add('hidden');
+            toggleToLogin.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
+            
+            // Populate admin info
+            document.getElementById('adminUsername').textContent = admin.username;
+            document.getElementById('adminEmail').textContent = admin.email;
+            document.getElementById('adminRole').textContent = admin.role;
+            document.getElementById('loginTime').textContent = new Date().toLocaleString();
+        }
+
+        // Logout handler
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    localStorage.removeItem('adminToken');
+                    showAlert('Logged out successfully!', 'success');
+                    
+                    // Reset to login form
+                    adminDashboard.classList.add('hidden');
+                    loginForm.classList.remove('hidden');
+                    toggleToRegister.classList.remove('hidden');
+                    loginForm.reset();
+                }
+            } catch (error) {
+                showAlert('Logout error. Please try again.');
+                console.error('Logout error:', error);
+            }
+        });
+
+        // Check if admin is already logged in
+        window.addEventListener('load', async () => {
+            const token = localStorage.getItem('adminToken');
+            if (token) {
+                try {
+                    const response = await fetch('/api/auth/me', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        showAdminDashboard(data.admin);
+                    } else {
+                        localStorage.removeItem('adminToken');
+                    }
+                } catch (error) {
+                    localStorage.removeItem('adminToken');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

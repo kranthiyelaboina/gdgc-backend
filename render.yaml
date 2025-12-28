@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: gdgc-platform-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_SECRET_KEY
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://gdgc-platform-frontend.vercel.app,https://gdgciare.tech,https://www.gdgciare.tech
+    healthCheckPath: /api/health

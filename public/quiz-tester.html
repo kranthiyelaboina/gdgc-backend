@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz API Tester</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+        }
+        .section { 
+            background: white; 
+            margin: 20px 0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .section h2 { 
+            color: #333; 
+            border-bottom: 2px solid #007bff; 
+            padding-bottom: 10px; 
+        }
+        input, textarea, button, select { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 5px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+        }
+        button { 
+            background-color: #007bff; 
+            color: white; 
+            cursor: pointer; 
+            border: none; 
+        }
+        button:hover { 
+            background-color: #0056b3; 
+        }
+        .response { 
+            background-color: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+            border-radius: 4px; 
+            padding: 10px; 
+            margin: 10px 0; 
+            white-space: pre-wrap; 
+            font-family: monospace; 
+            font-size: 12px; 
+        }
+        .error { 
+            background-color: #f8d7da; 
+            border-color: #f5c6cb; 
+            color: #721c24; 
+        }
+        .success { 
+            background-color: #d4edda; 
+            border-color: #c3e6cb; 
+            color: #155724; 
+        }
+        .flex { 
+            display: flex; 
+            gap: 10px; 
+        }
+        .flex > * { 
+            flex: 1; 
+        }
+        /* Quiz Taking Styles */
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .question {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .question h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .option {
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option:hover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+        .option.selected {
+            border-color: #007bff;
+            background-color: #d1ecf1;
+        }
+        .option input {
+            margin-right: 10px;
+            width: auto;
+        }
+        .quiz-header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #dc3545;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            height: 8px;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #28a745;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quiz API Testing Dashboard</h1>
+    
+    <!-- JWT Token Section -->
+    <div class="section">
+        <h2>🔐 Authentication</h2>
+        <label>JWT Bearer Token (for Admin endpoints):</label>
+        <input type="text" id="jwtToken" placeholder="Enter your JWT token from Postman login">
+        <small>Get this token by logging in via Postman at /api/auth/login</small>
+    </div>
+
+    <!-- Base URL Configuration -->
+    <div class="section">
+        <h2>⚙️ Configuration</h2>
+        <label>API Base URL:</label>
+        <input type="text" id="baseUrl" value="http://localhost:5000" placeholder="http://localhost:5000">
+    </div>
+
+    <!-- Admin: Create Quiz -->
+    <div class="section">
+        <h2>👨‍💼 ADMIN: Create Quiz</h2>
+        <textarea id="createQuizData" rows="15" placeholder="Quiz JSON data">
+{
+  "quiz_id": "QZ1001",
+  "title": "Introduction to Programming",
+  "description": "A beginner-level quiz to test your programming basics.",
+  "category": "Programming",
+  "difficulty": "Beginner",
+  "tags": ["javascript", "python", "basics"],
+  "time_limit_sec": 600,
+  "total_marks": 10,
+  "created_by": "admin",
+  "code": "PROG2024",
+  "isActive": true,
+  "questions": [
+    {
+      "question_id": "Q001",
+      "type": "single_choice",
+      "question_text": "Which of the following is a valid variable name in JavaScript?",
+      "options": [
+        { "option_id": "O1", "text": "2names" },
+        { "option_id": "O2", "text": "_name" },
+        { "option_id": "O3", "text": "first-name" },
+        { "option_id": "O4", "text": "@name" }
+      ],
+      "correct_answers": ["O2"],
+      "marks": 2,
+      "explanation": "Variables can start with letters, $, or underscore, but not numbers."
+    },
+    {
+      "question_id": "Q002",
+      "type": "multiple_choice",
+      "question_text": "Which of the following are valid JavaScript data types?",
+      "options": [
+        { "option_id": "O1", "text": "Number" },
+        { "option_id": "O2", "text": "Boolean" },
+        { "option_id": "O3", "text": "Character" },
+        { "option_id": "O4", "text": "Undefined" }
+      ],
+      "correct_answers": ["O1", "O2", "O4"],
+      "marks": 2,
+      "explanation": "JavaScript does not have a 'Character' type."
+    }
+  ]
+}
+        </textarea>
+        <button onclick="createQuiz()">Create Quiz</button>
+        <div id="createQuizResponse" class="response"></div>
+    </div>
+
+    <!-- Admin: Get All Quizzes -->
+    <div class="section">
+        <h2>👨‍💼 ADMIN: Get All Quizzes</h2>
+        <button onclick="getAllQuizzes()">Get All Quizzes</button>
+        <div id="getAllQuizzesResponse" class="response"></div>
+    </div>
+
+    <!-- Admin: Toggle Quiz Status -->
+    <div class="section">
+        <h2>👨‍💼 ADMIN: Toggle Quiz Status</h2>
+        <label>Quiz MongoDB ID:</label>
+        <input type="text" id="toggleQuizId" placeholder="Enter quiz MongoDB _id (from create response)">
+        <button onclick="toggleQuizStatus()">Toggle Quiz Status</button>
+        <div id="toggleQuizResponse" class="response"></div>
+    </div>
+
+    <!-- Admin: Get All Quiz Attempts -->
+    <div class="section">
+        <h2>👨‍💼 ADMIN: Quiz Attempts Tracking</h2>
+        <div class="flex">
+            <div>
+                <label>Quiz ID (optional):</label>
+                <input type="text" id="filterQuizId" placeholder="e.g., CLOUD001">
+            </div>
+            <div>
+                <label>User ID (optional):</label>
+                <input type="text" id="filterUserId" placeholder="e.g., STU001">
+            </div>
+            <div>
+                <label>Page:</label>
+                <input type="number" id="attemptsPage" value="1" min="1">
+            </div>
+            <div>
+                <label>Limit:</label>
+                <input type="number" id="attemptsLimit" value="10" min="1" max="100">
+            </div>
+        </div>
+        <button onclick="getAllAttempts()">Get Quiz Attempts</button>
+        <div id="getAllAttemptsResponse" class="response"></div>
+    </div>
+
+    <!-- Admin: Get User History -->
+    <div class="section">
+        <h2>👨‍💼 ADMIN: User Quiz History</h2>
+        <label>User ID:</label>
+        <input type="text" id="historyUserId" placeholder="Enter user ID (e.g., STU001)" value="STU001">
+        <button onclick="getUserHistory()">Get User History</button>
+        <div id="getUserHistoryResponse" class="response"></div>
+    </div>
+
+    <!-- User: Start Quiz -->
+    <div class="section">
+        <h2>👨‍🎓 USER: Start Quiz</h2>
+        <div class="flex">
+            <div>
+                <label>Quiz Code:</label>
+                <input type="text" id="quizCode" placeholder="e.g., PROG2024" value="PROG2024">
+            </div>
+            <div>
+                <label>Roll Number:</label>
+                <input type="text" id="rollNo" placeholder="e.g., USR001" value="USR001">
+            </div>
+            <div>
+                <label>Name (optional):</label>
+                <input type="text" id="userName" placeholder="e.g., John Doe" value="Test User">
+            </div>
+        </div>
+        <button onclick="startQuiz()">Start Quiz</button>
+        <div id="startQuizResponse" class="response"></div>
+    </div>
+
+    <!-- User: Submit Quiz -->
+    <div class="section">
+        <h2>👨‍🎓 USER: Submit Quiz</h2>
+        <textarea id="submitQuizData" rows="12" placeholder="Quiz submission JSON">
+{
+  "quiz_id": "QZ1001",
+  "user_id": "USR001",
+  "submitted_at": "2025-10-09T12:00:00Z",
+  "time_taken_sec": 450,
+  "responses": [
+    {
+      "question_id": "Q001",
+      "selected_options": ["O2"]
+    },
+    {
+      "question_id": "Q002",
+      "selected_options": ["O1", "O2", "O4"]
+    }
+  ]
+}
+        </textarea>
+        <button onclick="submitQuiz()">Submit Quiz</button>
+        <div id="submitQuizResponse" class="response"></div>
+    </div>
+
+    <!-- Interactive Quiz Taking -->
+    <div class="section">
+        <h2>🎓 TAKE QUIZ INTERACTIVELY</h2>
+        <div class="flex">
+            <div>
+                <label>Quiz Code:</label>
+                <input type="text" id="interactiveQuizCode" placeholder="e.g., PROG2024" value="PROG2024">
+            </div>
+            <div>
+                <label>Your Roll Number:</label>
+                <input type="text" id="interactiveRollNo" placeholder="e.g., STU001" value="STU001">
+            </div>
+            <div>
+                <label>Your Name:</label>
+                <input type="text" id="interactiveName" placeholder="Your Name" value="Test Student">
+            </div>
+        </div>
+        <button onclick="startInteractiveQuiz()">Start Interactive Quiz</button>
+        
+        <!-- Quiz Interface (hidden initially) -->
+        <div id="quizInterface" class="hidden">
+            <div class="quiz-header">
+                <h2 id="quizTitle">Quiz Title</h2>
+                <p id="quizDescription">Quiz Description</p>
+                <div class="timer" id="timer">Time Remaining: --:--</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div id="questionsContainer" class="quiz-container">
+                <!-- Questions will be loaded here -->
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <button onclick="submitInteractiveQuiz()" style="background-color: #28a745; font-size: 1.1em; padding: 15px 30px;">Submit Quiz</button>
+            </div>
+        </div>
+        
+        <div id="interactiveQuizResponse" class="response"></div>
+    </div>
+
+    <!-- Get Leaderboard -->
+    <div class="section">
+        <h2>🏆 Get Leaderboard</h2>
+        <button onclick="getLeaderboard()">Get Leaderboard</button>
+        <div id="leaderboardResponse" class="response"></div>
+    </div>
+
+    <script>
+        function getBaseUrl() {
+            return document.getElementById('baseUrl').value || 'http://localhost:5000';
+        }
+
+        function getAuthHeaders() {
+            const token = document.getElementById('jwtToken').value;
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            return headers;
+        }
+
+        function showResponse(elementId, response, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(response, null, 2);
+            element.className = `response ${isError ? 'error' : 'success'}`;
+        }
+
+        // Enhanced error handling function
+        async function handleApiResponse(response, elementId) {
+            try {
+                const text = await response.text();
+                
+                // Check if response is HTML (error page)
+                if (text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
+                    throw new Error(`Server returned HTML instead of JSON. Status: ${response.status}. Check console for full response.`);
+                }
+                
+                // Try to parse as JSON
+                const result = JSON.parse(text);
+                showResponse(elementId, result, !response.ok);
+                
+                if (!response.ok) {
+                    console.error('API Error:', result);
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('Full response text:', await response.text());
+                showResponse(elementId, { 
+                    error: error.message, 
+                    status: response.status,
+                    url: response.url
+                }, true);
+                throw error;
+            }
+        }
+
+        async function createQuiz() {
+            try {
+                const data = JSON.parse(document.getElementById('createQuizData').value);
+                const response = await fetch(`${getBaseUrl()}/api/quiz/create`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(data)
+                });
+                await handleApiResponse(response, 'createQuizResponse');
+            } catch (error) {
+                console.error('Create Quiz Error:', error);
+                showResponse('createQuizResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getAllQuizzes() {
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/quiz/admin/all`, {
+                    headers: getAuthHeaders()
+                });
+                const result = await response.json();
+                showResponse('getAllQuizzesResponse', result, !response.ok);
+            } catch (error) {
+                showResponse('getAllQuizzesResponse', { error: error.message }, true);
+            }
+        }
+
+        async function toggleQuizStatus() {
+            try {
+                const quizId = document.getElementById('toggleQuizId').value;
+                if (!quizId) {
+                    throw new Error('Please enter quiz MongoDB ID');
+                }
+                const response = await fetch(`${getBaseUrl()}/api/quiz/${quizId}/toggle`, {
+                    method: 'PATCH',
+                    headers: getAuthHeaders()
+                });
+                const result = await response.json();
+                showResponse('toggleQuizResponse', result, !response.ok);
+            } catch (error) {
+                showResponse('toggleQuizResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getAllAttempts() {
+            try {
+                const quizId = document.getElementById('filterQuizId').value;
+                const userId = document.getElementById('filterUserId').value;
+                const page = document.getElementById('attemptsPage').value;
+                const limit = document.getElementById('attemptsLimit').value;
+                
+                // Build query parameters
+                const params = new URLSearchParams();
+                if (quizId) params.append('quiz_id', quizId);
+                if (userId) params.append('user_id', userId);
+                if (page) params.append('page', page);
+                if (limit) params.append('limit', limit);
+                
+                const queryString = params.toString();
+                const url = `${getBaseUrl()}/api/quiz/admin/attempts${queryString ? '?' + queryString : ''}`;
+                
+                const response = await fetch(url, {
+                    headers: getAuthHeaders()
+                });
+                const result = await response.json();
+                showResponse('getAllAttemptsResponse', result, !response.ok);
+            } catch (error) {
+                showResponse('getAllAttemptsResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getUserHistory() {
+            try {
+                const userId = document.getElementById('historyUserId').value;
+                if (!userId) {
+                    throw new Error('Please enter user ID');
+                }
+                
+                const response = await fetch(`${getBaseUrl()}/api/quiz/admin/user/${userId}/history`, {
+                    headers: getAuthHeaders()
+                });
+                const result = await response.json();
+                showResponse('getUserHistoryResponse', result, !response.ok);
+            } catch (error) {
+                showResponse('getUserHistoryResponse', { error: error.message }, true);
+            }
+        }
+
+        async function startQuiz() {
+            try {
+                const data = {
+                    code: document.getElementById('quizCode').value,
+                    rollNo: document.getElementById('rollNo').value,
+                    name: document.getElementById('userName').value
+                };
+                const response = await fetch(`${getBaseUrl()}/api/quiz/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResponse('startQuizResponse', result, !response.ok);
+            } catch (error) {
+                showResponse('startQuizResponse', { error: error.message }, true);
+            }
+        }
+
+        async function submitQuiz() {
+            try {
+                const data = JSON.parse(document.getElementById('submitQuizData').value);
+                const response = await fetch(`${getBaseUrl()}/api/quiz/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResponse('submitQuizResponse', result, !response.ok);
+            } catch (error) {
+                showResponse('submitQuizResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getLeaderboard() {
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/leaderboard`);
+                const result = await response.json();
+                showResponse('leaderboardResponse', result, !response.ok);
+            } catch (error) {
+                showResponse('leaderboardResponse', { error: error.message }, true);
+            }
+        }
+
+        // Auto-update timestamp for submit quiz
+        function updateTimestamp() {
+            const submitData = document.getElementById('submitQuizData');
+            let data = submitData.value;
+            const now = new Date().toISOString();
+            data = data.replace(/"submitted_at":\s*"[^"]*"/, `"submitted_at": "${now}"`);
+            submitData.value = data;
+        }
+
+        // Update timestamp every 5 seconds
+        setInterval(updateTimestamp, 5000);
+
+        // Interactive Quiz Variables
+        let currentQuiz = null;
+        let quizStartTime = null;
+        let timerInterval = null;
+        let userAnswers = {};
+
+        // Start Interactive Quiz
+        async function startInteractiveQuiz() {
+            try {
+                const data = {
+                    code: document.getElementById('interactiveQuizCode').value,
+                    rollNo: document.getElementById('interactiveRollNo').value,
+                    name: document.getElementById('interactiveName').value
+                };
+
+                if (!data.code || !data.rollNo) {
+                    throw new Error('Please enter quiz code and roll number');
+                }
+
+                const response = await fetch(`${getBaseUrl()}/api/quiz/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to start quiz');
+                }
+
+                currentQuiz = await response.json();
+                quizStartTime = new Date();
+                userAnswers = {};
+
+                displayInteractiveQuiz();
+                startTimer();
+
+                showResponse('interactiveQuizResponse', { message: 'Quiz loaded successfully! Answer all questions and submit.' }, false);
+            } catch (error) {
+                showResponse('interactiveQuizResponse', { error: error.message }, true);
+            }
+        }
+
+        // Display Quiz Interface
+        function displayInteractiveQuiz() {
+            if (!currentQuiz) return;
+
+            document.getElementById('quizTitle').textContent = currentQuiz.title;
+            document.getElementById('quizDescription').textContent = currentQuiz.description;
+            document.getElementById('quizInterface').classList.remove('hidden');
+
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            currentQuiz.questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <h3>Question ${index + 1}: ${question.question_text}</h3>
+                    <div id="options_${question.question_id}">
+                        ${question.options.map(option => `
+                            <div class="option" onclick="selectOption('${question.question_id}', '${option.option_id}', '${question.type}')">
+                                <input type="${question.type === 'single_choice' ? 'radio' : 'checkbox'}" 
+                                       id="${question.question_id}_${option.option_id}"
+                                       name="${question.question_id}"
+                                       value="${option.option_id}"
+                                       onchange="updateAnswer('${question.question_id}', '${option.option_id}', '${question.type}')">
+                                <label for="${question.question_id}_${option.option_id}">${option.text}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+
+                // Initialize answer tracking
+                userAnswers[question.question_id] = [];
+            });
+
+            updateProgress();
+        }
+
+        // Handle Option Selection
+        function selectOption(questionId, optionId, questionType) {
+            const checkbox = document.getElementById(`${questionId}_${optionId}`);
+            
+            if (questionType === 'single_choice') {
+                // For single choice, uncheck all others first
+                const allOptions = document.querySelectorAll(`input[name="${questionId}"]`);
+                allOptions.forEach(opt => {
+                    opt.checked = false;
+                    opt.parentElement.classList.remove('selected');
+                });
+            }
+            
+            checkbox.checked = !checkbox.checked;
+            checkbox.parentElement.classList.toggle('selected', checkbox.checked);
+            
+            updateAnswer(questionId, optionId, questionType);
+        }
+
+        // Update Answer Tracking
+        function updateAnswer(questionId, optionId, questionType) {
+            if (questionType === 'single_choice') {
+                // Single choice: only one answer
+                const checkedOption = document.querySelector(`input[name="${questionId}"]:checked`);
+                userAnswers[questionId] = checkedOption ? [checkedOption.value] : [];
+            } else {
+                // Multiple choice: array of selected options
+                const checkedOptions = document.querySelectorAll(`input[name="${questionId}"]:checked`);
+                userAnswers[questionId] = Array.from(checkedOptions).map(opt => opt.value);
+            }
+            
+            updateProgress();
+        }
+
+        // Update Progress Bar
+        function updateProgress() {
+            if (!currentQuiz) return;
+            
+            const answeredQuestions = Object.values(userAnswers).filter(answer => answer.length > 0).length;
+            const totalQuestions = currentQuiz.questions.length;
+            const progressPercent = (answeredQuestions / totalQuestions) * 100;
+            
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+        }
+
+        // Start Timer
+        function startTimer() {
+            if (!currentQuiz || !currentQuiz.time_limit_sec) return;
+
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((new Date() - quizStartTime) / 1000);
+                const remaining = currentQuiz.time_limit_sec - elapsed;
+
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer').textContent = 'Time Up!';
+                    submitInteractiveQuiz(true); // Auto-submit
+                    return;
+                }
+
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('timer').textContent = 
+                    `Time Remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                // Change color when less than 2 minutes
+                const timerElement = document.getElementById('timer');
+                if (remaining < 120) {
+                    timerElement.style.color = '#dc3545';
+                } else {
+                    timerElement.style.color = '#28a745';
+                }
+            }, 1000);
+        }
+
+        // Submit Interactive Quiz
+        async function submitInteractiveQuiz(isAutoSubmit = false) {
+            try {
+                if (!currentQuiz) {
+                    throw new Error('No active quiz to submit');
+                }
+
+                const timeElapsed = Math.floor((new Date() - quizStartTime) / 1000);
+                
+                // Build responses array
+                const responses = currentQuiz.questions.map(question => ({
+                    question_id: question.question_id,
+                    selected_options: userAnswers[question.question_id] || []
+                }));
+
+                const submissionData = {
+                    quiz_id: currentQuiz.quiz_id,
+                    user_id: document.getElementById('interactiveRollNo').value,
+                    submitted_at: new Date().toISOString(),
+                    time_taken_sec: timeElapsed,
+                    responses: responses
+                };
+
+                const response = await fetch(`${getBaseUrl()}/api/quiz/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submissionData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Hide quiz interface and show results
+                    document.getElementById('quizInterface').classList.add('hidden');
+                    clearInterval(timerInterval);
+                    
+                    const message = isAutoSubmit ? 'Quiz auto-submitted (time up)!' : 'Quiz submitted successfully!';
+                    showResponse('interactiveQuizResponse', { 
+                        message: message,
+                        results: result 
+                    }, false);
+                } else {
+                    throw new Error(result.message || 'Failed to submit quiz');
+                }
+
+            } catch (error) {
+                showResponse('interactiveQuizResponse', { error: error.message }, true);
+            }
+        }
+
+        // Reset Quiz Interface
+        function resetQuizInterface() {
+            document.getElementById('quizInterface').classList.add('hidden');
+            clearInterval(timerInterval);
+            currentQuiz = null;
+            quizStartTime = null;
+            userAnswers = {};
+        }
+    </script>
+</body>
+</html>
