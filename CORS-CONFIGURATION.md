@@ -7,8 +7,11 @@ The backend has been configured to accept requests from your frontend domain.
 ### **Allowed Origins:**
 - ✅ `http://localhost:3000` (Local development)
 - ✅ `http://localhost:5000` (Local backend)
+- ✅ `http://localhost:5173` (Vite dev server)
 - ✅ `https://www.gdgciare.tech` (Production frontend with www)
 - ✅ `https://gdgciare.tech` (Production frontend without www)
+- ✅ `https://gdgc-platform-frontend.vercel.app` (Vercel frontend)
+- ✅ `https://gdgcplatformbackend.onrender.com` (Render backend)
 
 ### **Allowed Methods:**
 - GET
@@ -35,8 +38,11 @@ const corsOptions = {
     origin: [
         'http://localhost:3000',
         'http://localhost:5000',
+        'http://localhost:5173',
         'https://www.gdgciare.tech',
-        'https://gdgciare.tech'
+        'https://gdgciare.tech',
+        'https://gdgc-platform-frontend.vercel.app',
+        'https://gdgcplatformbackend.onrender.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -54,8 +60,11 @@ const io = new Server(server, {
         origin: [
             'http://localhost:3000',
             'http://localhost:5000',
+            'http://localhost:5173',
             'https://www.gdgciare.tech',
-            'https://gdgciare.tech'
+            'https://gdgciare.tech',
+            'https://gdgc-platform-frontend.vercel.app',
+            'https://gdgcplatformbackend.onrender.com'
         ],
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
         credentials: true

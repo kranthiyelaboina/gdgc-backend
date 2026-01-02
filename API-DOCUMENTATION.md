@@ -1220,7 +1220,8 @@ Delete a participant by their email.
   'http://localhost:5000',
   'https://www.gdgciare.tech',
   'https://gdgciare.tech',
-  'https://gdgc-platform-frontend.vercel.app'
+  'https://gdgc-platform-frontend.vercel.app',
+  'https://gdgcplatformbackend.onrender.com'
 ]
 ```
 

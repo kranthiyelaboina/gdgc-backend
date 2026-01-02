@@ -32,7 +32,8 @@ const server = http.createServer(app);
 const getSocketOrigins = () => {
     const envOrigins = process.env.ALLOWED_ORIGINS;
     if (envOrigins) {
-        return envOrigins.split(',').map(origin => origin.trim());
+        // Strip trailing slashes from origins to ensure proper matching
+        return envOrigins.split(',').map(origin => origin.trim().replace(/\/$/, ''));
     }
     return [
         'http://localhost:3000',
@@ -40,7 +41,8 @@ const getSocketOrigins = () => {
         'http://localhost:5173',
         'https://www.gdgciare.tech',
         'https://gdgciare.tech',
-        'https://gdgc-platform-frontend.vercel.app'
+        'https://gdgc-platform-frontend.vercel.app',
+        'https://gdgcplatformbackend.onrender.com'
     ];
 };
 
@@ -64,7 +66,8 @@ if (process.env.NODE_ENV === 'production') {
 const getAllowedOrigins = () => {
     const envOrigins = process.env.ALLOWED_ORIGINS;
     if (envOrigins) {
-        return envOrigins.split(',').map(origin => origin.trim());
+        // Strip trailing slashes from origins to ensure proper matching
+        return envOrigins.split(',').map(origin => origin.trim().replace(/\/$/, ''));
     }
     return [
         'http://localhost:3000',
@@ -72,7 +75,8 @@ const getAllowedOrigins = () => {
         'http://localhost:5173',
         'https://www.gdgciare.tech',
         'https://gdgciare.tech',
-        'https://gdgc-platform-frontend.vercel.app'
+        'https://gdgc-platform-frontend.vercel.app',
+        'https://gdgcplatformbackend.onrender.com'
     ];
 };
 

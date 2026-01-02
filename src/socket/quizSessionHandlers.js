@@ -10,6 +10,7 @@ import SessionParticipant from '../models/SessionParticipant.js';
 import SessionAnswer from '../models/SessionAnswer.js';
 import Quiz from '../models/Quiz.js';
 import QuizAttempt from '../models/QuizAttempt.js';
+import Leaderboard from '../models/Leaderboard.js';
 import jwt from 'jsonwebtoken';
 
 /**
@@ -734,7 +735,8 @@ async function handleQuestionEnd(quizNsp, sessionCode) {
         for (const participant of participants) {
             if (participant.socketId) {
                 try {
-                    const wasCorrect = question.correct_answers?.includes(participant.currentAnswer) || false;
+                    const didAnswer = participant.hasAnsweredCurrent || participant.currentAnswer !== null;
+                    const wasCorrect = didAnswer && question.correct_answers?.includes(participant.currentAnswer) || false;
                     const lastResult = participant.lastAnswerResult || {};
                     quizNsp.to(participant.socketId).emit('question:personal-result', {
                         wasCorrect,
@@ -743,7 +745,8 @@ async function handleQuestionEnd(quizNsp, sessionCode) {
                         basePoints: lastResult.basePoints || 0,
                         speedBonus: lastResult.speedBonus || 0,
                         yourScore: participant.score || 0,
-                        yourRank: leaderboard.findIndex(l => l.oderId === participant.oderId) + 1 || participants.length
+                        yourRank: leaderboard.findIndex(l => l.oderId === participant.oderId) + 1 || participants.length,
+                        didAnswer // Flag to indicate if participant submitted an answer
                     });
                 } catch (err) {
                     console.error(`Error sending personal result to ${participant.oderId}:`, err.message);
@@ -869,6 +872,27 @@ async function handleQuizComplete(quizNsp, sessionCode) {
                         time_taken_sec: timeTakenSec,
                         submitted_at: quizEndedAt,
                         responses: responses
+                    },
+                    { upsert: true, new: true }
+                );
+                
+                // Also update the main Leaderboard collection (so admin dashboard shows live quiz results)
+                await Leaderboard.findOneAndUpdate(
+                    { rollNo: participant.oderId },
+                    {
+                        name: participant.userName || participant.oderId,
+                        photoURL: participant.photoURL || '',
+                        $inc: {
+                            score: baseScore,
+                            totalMarks: totalMarks,
+                            questionsCorrect: correctAnswers,
+                            totalQuestions: totalQuestions
+                        },
+                        lastQuizId: session.quizId.toString(),
+                        quizTitle: `[LIVE] ${session.quizTitle || 'Live Quiz'}`,
+                        $setOnInsert: {
+                            rollNo: participant.oderId
+                        }
                     },
                     { upsert: true, new: true }
                 );
